@@ -15,7 +15,7 @@ class rules:
     standard_game = [
         ['R', 'P', '_', '_', '_', '_', 'p', 'r'],
         ['N', 'P', '_', '_', '_', '_', 'p', 'n'],
-        ['B', 'P', '_', '_', '_', '_', 'p', 'b'],
+        ['B', 'P', '_', '_', '_', '_', 'P', 'b'],
         ['Q', 'P', '_', '_', '_', '_', 'p', 'q'],
         ['K', 'P', '_', '_', '_', '_', 'p', 'k'],
         ['B', 'P', '_', '_', '_', '_', 'p', 'b'],
@@ -180,9 +180,7 @@ class rules:
        
         if piece in ['p','P']:
             potential_boards += rules.legal_pawn_jumps(board,file,rank)
-        
-       
-            
+          
         return potential_boards
                 
                     
@@ -192,7 +190,7 @@ class rules:
         black_king_in_check = True if 'k' in rules.all_targets(board,rules.white) else False
         return (white_king_in_check,black_king_in_check)
     
-possible_moves =rules.legal_moves(rules.standard_game,0,1)
+possible_moves =rules.legal_moves(rules.standard_game,2,6)
 for i in possible_moves:
     for j in i:
         print (j)
