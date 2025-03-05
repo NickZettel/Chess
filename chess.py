@@ -83,7 +83,7 @@ class rules:
         return attacked
     
     def legal_pawn_jumps(board, file, rank):
-        jumps = []
+        potential_boards = []
         piece = board[file][rank]
 
         if piece not in ['P', 'p']:  # Only handle pawns
@@ -114,9 +114,9 @@ class rules:
             if (piece == 'p' and rules.kings_in_check(new_board)[1]):
                 break  
 
-            jumps.append((file, new_rank))  
+            potential_boards.append(new_board)  
 
-        return jumps
+        return potential_boards
                 
 
     
@@ -124,6 +124,7 @@ class rules:
         piece = board[file][rank]
                 
         squares = []
+        potential_boards = []
         
         if piece == '_':
             return squares
@@ -172,16 +173,17 @@ class rules:
                     break
                 
                 squares.append((new_file,new_rank))
+                potential_boards.append(new_board)
                 
                 if new_square_occupant != '_' :
                     break
        
         if piece in ['p','P']:
-            squares += legal_pawn_jumps(board,file,rank)
+            potential_boards += rules.legal_pawn_jumps(board,file,rank)
         
-        if piece == 'P' and 
+       
             
-        return squares
+        return potential_boards
                 
                     
                             
@@ -190,8 +192,11 @@ class rules:
         black_king_in_check = True if 'k' in rules.all_targets(board,rules.white) else False
         return (white_king_in_check,black_king_in_check)
     
-    
-print (rules.legal_moves(rules.standard_game,3,3))
+possible_moves =rules.legal_moves(rules.standard_game,0,1)
+for i in possible_moves:
+    for j in i:
+        print (j)
+    print ('%%%%%%%%%%%%%%%')
 
 
     
