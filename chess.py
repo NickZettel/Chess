@@ -1,35 +1,94 @@
 import random
-class piece:
-    def __init__ (self, pointer_to_board,piece_notation,file,rank):
-        self.str = piece_notation
-        self.board = pointer_to_board
-    def __str__ (self):
-        return self.str
-
-class player:
-    def __init__ (self):
-        self.pieces = []
-
-
-class rules:
-    standard_game = [
+standard_game = [
         ['R', 'P', '_', '_', '_', '_', 'p', 'r'],
         ['N', 'P', '_', '_', '_', '_', 'p', 'n'],
-        ['B', 'P', '_', '_', '_', '_', 'P', 'b'],
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'],
         ['Q', 'P', '_', '_', '_', '_', 'p', 'q'],
         ['K', 'P', '_', '_', '_', '_', 'p', 'k'],
         ['B', 'P', '_', '_', '_', '_', 'p', 'b'],
         ['N', 'P', '_', '_', '_', '_', 'p', 'n'],
         ['R', 'P', '_', '_', '_', '_', 'p', 'r']
         ]
+
+
     
+class piece:
+    white = ['P','R','N','B','Q','K']
+    black = ['p','r','n','b','q','k']
+    
+    def __init__ (self, pointer_to_board , file, rank, piece_notation, attack_pattern):
+        
+        self.board = pointer_to_board
+        
+        self.file = file
+        self.rank = rank
+        
+        self.notation = piece_notation
+        self.attack_pattern = attack_pattern
+        
+    def __str__ (self):
+        return self.notation
+    
+    def giving_check (self):
+        if self.notation in ['P','N','K','p','n','k']:
+            distance = 1
+        else:
+            distance = 8
+        for delta_file, delta_rank in self.attack_pattern:
+            for dist in range(distance):
+                target_file = self.file + ((dist+1)*delta_file)
+                target_rank = self.rank + ((dist+1)*delta_rank)
+                if 8 > target_rank >= 0 and 8 > target_file >= 0:
+                    target = self.board[target_file][target_rank]
+                    if target != '_':
+                        if self.notation in piece.white and target == 'k':
+                            return True
+                        elif self.notation in piece.black and target == 'K':
+                            return True
+                        break
+                else:
+                    break
+        return False
+    
+    
+    
+class king(piece):
+    def __init__(self, pointer_to_board , file, rank, piece_notation):
+        super().__init__(pointer_to_board , file, rank, piece_notation)
+    
+class queen(piece):
+    def __init__(self, pointer_to_board , file, rank, piece_notation):
+        super().__init__(pointer_to_board , file, rank, piece_notation)
+   
+class rook(piece):
+    def __init__(self, pointer_to_board , file, rank, piece_notation):
+        super().__init__(pointer_to_board , file, rank, piece_notation)
+
+class bishop(piece):
+    def __init__(self, pointer_to_board , file, rank, piece_notation):
+        super().__init__(pointer_to_board , file, rank, piece_notation)
+
+class knight(piece):
+    def __init__(self, pointer_to_board , file, rank, piece_notation):
+        super().__init__(pointer_to_board , file, rank, piece_notation)
+
+class pawn(piece):
+    def __init__(self, pointer_to_board , file, rank, piece_notation):
+        super().__init__(pointer_to_board , file, rank, piece_notation)
+
+
+
+
+
+
+class rules:
     white = ['P','R','N','B','Q','K']
     black = ['p','r','n','b','q','k']
     
     star = [(1,1),(-1,-1),(1,-1),(-1,1),(1,0),(-1,0),(0,-1),(0,1)]
     diag = [(1,1),(-1,-1),(1,-1),(-1,1)]
     straight = [(1,0),(0,1),(-1,0),(0,-1)]
-    el = [(-2,-1),(-2,1),(2,-1),(2,1),(-1,-2),(-1,2),(1,-2),(1,2)]
+    L_shaped = [(-2,-1),(-2,1),(2,-1),(2,1),(-1,-2),(-1,2),(1,-2),(1,2)]
     wp = [(1,1),(-1,1)]
     bp = [(-1,-1),(1,-1)]
 
@@ -190,11 +249,11 @@ class rules:
         black_king_in_check = True if 'k' in rules.all_targets(board,rules.white) else False
         return (white_king_in_check,black_king_in_check)
     
-possible_moves =rules.legal_moves(rules.standard_game,2,6)
-for i in possible_moves:
-    for j in i:
-        print (j)
-    print ('%%%%%%%%%%%%%%%')
+#possible_moves =rules.legal_moves(rules.standard_game,2,6)
+#for i in possible_moves:
+ #   for j in i:
+  #      print (j)
+  #  print ('%%%%%%%%%%%%%%%')
 
 
     
