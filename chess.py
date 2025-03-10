@@ -70,7 +70,7 @@ class piece:
                 target_file = self.file + ((dist+1)*delta_file)
                 target_rank = self.rank + ((dist+1)*delta_rank)
                 if 8 > target_rank >= 0 and 8 > target_file >= 0:
-                    target = str(board[target_file][target_rank])
+                    target = board[target_file][target_rank]
                     if target != '_':
                         if self.notation in white and target in black:
                             targets.append((target_file,target_rank))
@@ -82,14 +82,8 @@ class piece:
                         targets.append((target_file,target_rank))
                 else:
                     break
-
-        if self.notation == 'Q':
-            print ('targs',targets)
         return targets
-    
-    def move (self):
-        pass
-        
+
 
 class game:
     def __init__ (self):
@@ -103,17 +97,6 @@ class game:
         ['_', '_', '_', '_', '_', '_', '_', '_'],
         ['_', '_', '_', 'P', '_', 'p', '_', '_']
         ]
-        self.board2 = [
-        ['R', 'P', '_', '_', '_', '_', 'p', 'r'],
-        ['N', 'P', '_', '_', '_', '_', 'p', 'n'],
-        ['B', 'P', '_', '_', '_', '_', 'p', 'b'],
-        ['Q', 'P', '_', '_', '_', '_', 'p', 'q'],
-        ['K', 'P', '_', '_', '_', '_', 'p', 'k'],
-        ['B', 'P', '_', '_', '_', '_', 'p', 'b'],
-        ['N', 'P', '_', '_', '_', '_', 'p', 'n'],
-        ['R', 'P', '_', '_', '_', '_', 'p', 'r']
-        ]
-        self.populate(self.board)
         
         self.rook_a_has_moved = {
             'white':False,
@@ -131,7 +114,7 @@ class game:
             }
 
         self.turn = 'white'
-        self.winner = None
+        self.populate(self.board)
     
     def populate (self,board):
         self.white = []
@@ -140,26 +123,20 @@ class game:
             for rank in range(len(board[file])):
                 notation = board[file][rank]
                 if notation != '_':
-                    if not isinstance(board[file][rank], piece):
-                        new_piece = piece(board, file, rank, notation)
-                        board[file][rank] = new_piece
-                    if str(notation) in {'P','R','N','B','Q','K'}:
-                        self.white.append(board[file][rank])
+                    new_piece = piece(board, file, rank, notation)
+                    if notation in {'P','R','N','B','Q','K'}:
+                        self.white.append(new_piece)
                     else:
-                        self.black.append(board[file][rank])
+                        self.black.append(new_piece)
         self.board = board
 
         
     def in_check(self, color, board):
+        king_notation = "K" if color == "white" else "k"
         attacked_squares = []
         attackers = self.black if color == "white" else self.white
-        king_notation = "K" if color == "white" else "k"
-
         for piece in attackers:
             attacked_squares += piece.target_squares(board)
-            if any(str(board[file][rank]) == king_notation for file, rank in attacked_squares):
-                print (piece.notation)
-
         return any(str(board[file][rank]) == king_notation for file, rank in attacked_squares)
     
     def promotion (self,board):
@@ -278,6 +255,7 @@ class game:
     def find_legal_moves (self, color,board): #legal_moves are represented by the board positions
         future_boards = []
         pieces = self.black if color == "black" else self.white
+        print ([i.notation for i in pieces])
         for piece in pieces:
             if str(piece) in ['P','p']:
                 future_boards += self.pawn_logic(piece,board) #pawn logic
@@ -291,7 +269,6 @@ class game:
                 if move == (1,2):
                     for i in new_board:
                         file =[str(f) for f in i]
-                        print (file)
                 legal = not self.in_check(color,new_board)
                 if legal:
                     future_boards.append(new_board)
@@ -322,23 +299,20 @@ class game:
                 print (self.turn)
         
         
-board3 = [
-    ['B', 'K', '_', '_', 'P', 'p', '_', '_'],
-    ['_', '_', 'Q', 'r', '_', '_', '_', '_'],
-    ['_', '_', '_', 'k', '_', '_', '_', '_'],
-    ['_', '_', '_', '_', '_', '_', '_', '_'],
-    ['_', '_', 'P', 'p', '_', '_', '_', 'b'],
-    ['_', '_', '_', 'N', 'B', '_', '_', '_'],
-    ['_', '_', '_', '_', '_', '_', '_', '_'],
-    ['_', '_', '_', 'P', '_', 'p', '_', '_']
-    ]
+
         
 import random
 x = game()
 
-print (x.in_check('white',board3))
 
-x.find_legal_moves('white',x.board)
+print (x.find_legal_moves('white',x.board))
+
+
+#legal = x.find_legal_moves('white',x.board)
+
+        
+
+
 
 
 
