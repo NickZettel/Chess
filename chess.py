@@ -497,6 +497,8 @@ print (x.in_check('white',board3))
 
 x.find_legal_moves('white',x.board)
 
+#1111
+
 
 =======
 
