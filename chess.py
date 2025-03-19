@@ -32,37 +32,25 @@ king_moved = {
 
 
 
-board = [#1    2    3    4    5    6    7    8
-        ['R', '_', '_', '_', '_', 'B', '_', 'r'], #a
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #b
-        ['_', '_', '_', '_', '_', '_', '_', 'q'], #c
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #d
-        ['K', '_', '_', '_', '_', '_', '_', 'k'], #e
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #f
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #g 
-        ['R', '_', '_', '_', '_', 'q', '_', 'r']  #h
-        ]
-
-board2 = [#1    2    3    4    5    6    7    8
-        ['R', '_', '_', '_', '_', 'q', '_', 'r'], #a
+board =[#1    2    3    4    5    6    7    8
+        ['_', '_', '_', '_', '_', '_', '_', '_'], #a
         ['_', '_', '_', '_', '_', '_', '_', '_'], #b
         ['_', '_', '_', '_', '_', '_', '_', '_'], #c
         ['_', '_', '_', '_', '_', '_', '_', '_'], #d
-        ['K', '_', '_', '_', '_', '_', '_', 'k'], #e
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #f
+        ['_', '_', '_', '_', 'Q', '_', '_', 'Q'], #e
+        ['_', '_', 'K', '_', '_', '_', '_', '_'], #f
         ['_', '_', '_', '_', '_', '_', '_', '_'], #g 
-        ['R', '_', '_', '_', '_', 'q', '_', 'r']  #h
+        ['_', '_', '_', '_', 'Q', '_', 'k', 'q']  #h
         ]
-
-board3 = [
-        ['R', '_', '_', '_', '_', '_', '_', 'r'],
-        ['_', '_', '_', '_', '_', '_', '_', '_'],
-        ['_', '_', '_', '_', '_', '_', '_', '_'],
-        ['_', '_', '_', '_', '_', '_', '_', '_'],
-        ['K', '_', '_', '_', '_', '_', 'q', '_'],
-        ['_', '_', '_', '_', '_', '_', '_', '_'],
-        ['_', '_', '_', '_', '_', '_', '_', '_'],
-        ['R', '_', '_', '_', '_', '_', '_', 'r']
+board2 =[#1    2    3    4    5    6    7    8
+        ['_', '_', '_', '_', '_', '_', '_', '_'], #a
+        ['_', '_', '_', '_', '_', '_', '_', '_'], #b
+        ['_', '_', '_', '_', '_', '_', '_', '_'], #c
+        ['_', '_', '_', '_', '_', '_', '_', '_'], #d
+        ['_', '_', '_', '_', '_', '_', '_', 'Q'], #e
+        ['_', '_', 'K', '_', '_', '_', '_', '_'], #f
+        ['_', '_', '_', '_', '_', '_', '_', '_'], #g 
+        ['_', '_', '_', '_', 'Q', '_', 'k', 'Q']  #h
         ]
 
 
@@ -164,7 +152,6 @@ def pawn_logic(board,file,rank): #returns all legal moves for a pawn piece
         one_jump = valid_check(board,file,rank,file,rank+direction)
         if one_jump:
             if rank+direction in [0,7]:
-                print ('here')
                 boards += promotion(one_jump,file,rank+direction)
             else:
                 boards.append(one_jump)
@@ -235,7 +222,8 @@ def king_logic(board,file,rank): #returns all legal moves for a king piece
         target = board[new_file][new_rank]
         if notation in white and target in black or notation in black and target in white or target == '_':
             move = valid_check(board,file,rank,new_file,new_rank)
-            boards.append(move)
+            if move:
+                boards.append(move)
 
         
     return boards
@@ -252,7 +240,7 @@ def valid_moves(board,color):
                     boards += pawn_moves
             elif occupant in pieces and occupant in ['K','k']:
                 boards += king_logic(board,file,rank)
-            
+                
             elif occupant in pieces and occupant not in ['R','r']:
                 targets = piece_targets(board,file,rank)
                 for new_file, new_rank in targets:
@@ -263,6 +251,7 @@ def valid_moves(board,color):
                     
                     
 def move_notation(board,new_board):
+    extra = '' #check/ checkmate
     files = ['a','b','c','d','e','f','g','h']
     ranks = ['1','2','3','4','5','6','7','8']
     missing = []
@@ -276,12 +265,27 @@ def move_notation(board,new_board):
                     missing.append((file,rank))
                 else:
                     new.append((file,rank)) #piece in location it wasn't before
+                    
+    
+    #is new board a check or checkmate
+    moved_color = 'white' if new_board[new[0][0]][new[0][1]] in white else 'black'
+    opp_color = 'black' if moved_color == 'white' else 'white'
+    
+    #other player in check?
+    if in_check(new_board,opp_color):
+        print ('check delivered')
+        if valid_moves(new_board,opp_color): #check
+            extra = '+'
+        else:#checkmate
+            extra = '#'
+            print ('checkmate')
+    
     #castle
     if len(new) > 1: #two pieces in new locations 
         if new[0][0] in [2,3]: #long castle
-            return 'O-O-O'
+            return 'O-O-O' + extra
         elif new[0][0] in [6,5]: #short castle
-            return 'O-O'
+            return 'O-O' + extra
     
     #en passant
     if len(missing) > 1: #two pieces not in old location and not castle
@@ -291,28 +295,68 @@ def move_notation(board,new_board):
                 origin_file = i[0] 
         origin_file = files[origin_file]
         targ_file = files[targ_file]
-        return origin_file + 'x' + targ_file + str(new[0][1]+1)
+        return origin_file + 'x' + targ_file + str(new[0][1]+1) + extra
     
-    #regular move
+    #captures + non captures
+    notation = new_board[new[0][0]][new[0][1]]
     old_occupant = board[new[0][0]][new[0][1]]
-    if old_occupant != '_': #capture occured
-        attacker = new_board[new[0][0]][new[0][1]]
-        new_file = files[new[0][0]]
-        new_rank = ranks[new[0][1]]
-        #check if any identical pieces
-        notation = new_board[new[0][0]][new[0][1]]
-        for file in range(len(board)):
-            for rank in range(len(board[file])):
-                
-        return attacker + "x" + new_file + new_rank
+    attacker = new_board[new[0][0]][new[0][1]]
+    same_pieces = []
+    new_file = files[new[0][0]]
+    new_rank = ranks[new[0][1]] #no need to differentiate FIX IT ########################
+    #check if any identical pieces
+    #print (notation)
+    for file in range(len(board)):
+        for rank in range(len(board[file])):
+            if board[file][rank] == notation and (file,rank) != (missing[0][0],missing[0][1]): #same piece somewhere
+                same_pieces.append((file,rank))
+    attackers = []
+    for i in same_pieces:
+        targets = piece_targets(board,i[0],i[1])
+        if new[0] in targets:
+            attackers.append(i)
+    
+    if not attackers: #no differentiation neccessary
+        return notation + 'x' + new_file + new_rank + extra
+        
+    for i in attackers:
+        if i[0] == missing[0][0]: #file is not enough to differentiate
+            print ('file is not enough to differentiate')
+            break
+    else:
+        print ('differentiated by file')
+        if old_occupant != '_':
+            return attacker + files[missing[0][0]] + "x" + new_file + new_rank +extra#differentiated by file
+        else:
+            return attacker + files[missing[0][0]] + new_file + new_rank + extra#differentiated by file
+    
+    for i in attackers:
+        if i[1] == missing[0][1]: #rank is not enough to differentiate
+            print ('rank is not enough to differentiate')
+            break
+    else:
+        print ('#differentiated by rank')
+        if old_occupant != '_':
+            return attacker + ranks[missing[0][1]] + "x" + new_file + new_rank + extra #differentiated by file
+        else:
+            return attacker + ranks[missing[0][1]] + new_file + new_rank + extra#differentiated by file
+    
+    print ('double disambiguation')
+    if old_occupant != '_':
+        return attacker + files[missing[0][0]] + ranks[missing[0][1]] + "x" + new_file + new_rank + extra
+    else:
+        return attacker + files[missing[0][0]] + ranks[missing[0][1]] + new_file + new_rank + extra
+        
+
                     
-            
+#clean up notation once logic is good
 x = move_notation(board,board2)
 print (x)
 
 
 
         
+
 
 
 
