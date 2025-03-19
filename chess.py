@@ -32,25 +32,26 @@ king_moved = {
 
 
 
-board =[#1    2    3    4    5    6    7    8
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #a
+board  =[#1    2    3    4    5    6    7    8
+        ['_', '_', '_', '_', '_', '_', '_', 'r'], #a
         ['_', '_', '_', '_', '_', '_', '_', '_'], #b
         ['_', '_', '_', '_', '_', '_', '_', '_'], #c
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #d
-        ['_', '_', '_', '_', 'Q', '_', '_', 'Q'], #e
-        ['_', '_', 'K', '_', '_', '_', '_', '_'], #f
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #g 
-        ['_', '_', '_', '_', 'Q', '_', 'k', 'q']  #h
+        ['_', '_', '_', '_', '_', '_', '_', 'k'], #d
+        ['_', '_', '_', '_', '_', 'P', '_', '_'], #e
+        ['_', '_', '_', '_', '_', 'p', '_', '_'], #f
+        ['_', '_', '_', '_', '_', 'P', '_', '_'], #g 
+        ['_', '_', '_', '_', '_', '_', '_', 'r']  #h
         ]
+
 board2 =[#1    2    3    4    5    6    7    8
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #a
+        ['_', '_', '_', '_', '_', '_', '_', 'r'], #a
         ['_', '_', '_', '_', '_', '_', '_', '_'], #b
         ['_', '_', '_', '_', '_', '_', '_', '_'], #c
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #d
-        ['_', '_', '_', '_', '_', '_', '_', 'Q'], #e
-        ['_', '_', 'K', '_', '_', '_', '_', '_'], #f
-        ['_', '_', '_', '_', '_', '_', '_', '_'], #g 
-        ['_', '_', '_', '_', 'Q', '_', 'k', 'Q']  #h
+        ['_', '_', '_', '_', '_', '_', '_', 'k'], #d
+        ['_', '_', '_', '_', '_', '_', 'P', '_'], #e
+        ['_', '_', '_', '_', '_', 'p', '_', '_'], #f
+        ['_', '_', '_', '_', '_', 'P', '_', '_'], #g 
+        ['_', '_', '_', '_', '_', '_', '_', 'r']  #h
         ]
 
 
@@ -310,14 +311,18 @@ def move_notation(board,new_board):
         for rank in range(len(board[file])):
             if board[file][rank] == notation and (file,rank) != (missing[0][0],missing[0][1]): #same piece somewhere
                 same_pieces.append((file,rank))
+
     attackers = []
     for i in same_pieces:
         targets = piece_targets(board,i[0],i[1])
         if new[0] in targets:
             attackers.append(i)
-    
-    if not attackers: #no differentiation neccessary
-        return notation + 'x' + new_file + new_rank + extra
+    if not attackers: #
+        print ('no differentiation neccessary')
+        if old_occupant != '_':
+            return notation + 'x' + new_file + new_rank + extra
+        else:
+            return notation + new_file + new_rank + extra
         
     for i in attackers:
         if i[0] == missing[0][0]: #file is not enough to differentiate
@@ -329,8 +334,7 @@ def move_notation(board,new_board):
             return attacker + files[missing[0][0]] + "x" + new_file + new_rank +extra#differentiated by file
         else:
             return attacker + files[missing[0][0]] + new_file + new_rank + extra#differentiated by file
-    
-    for i in attackers:
+    for i in same_pieces:
         if i[1] == missing[0][1]: #rank is not enough to differentiate
             print ('rank is not enough to differentiate')
             break
