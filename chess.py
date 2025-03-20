@@ -9,26 +9,39 @@ L = [(-2,-1),(-2,1),(2,-1),(2,1),(-1,-2),(-1,2),(1,-2),(1,2)]
 wp = [(1,1),(-1,1)]
 bp = [(-1,-1),(1,-1)]
 
+standard=[#1   2    3    4    5    6    7    8
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r'], #a
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #b
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #c
+        ['Q', 'P', '_', '_', '_', '_', 'p', 'q'], #d
+        ['K', 'P', '_', '_', '_', '_', 'p', 'k'], #e
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #f
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #g 
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r']  #h
+        ]
+
 #oop variables
-
-move_history = []
-
-en_passant = (2,6)
-
-rook_a_moved = {
-    'white':False,
-    'black':False
-    }
+class game:
+    def __init__ (self,board):
+        self.board = board
+        self.moves = {}
+        self.en_passant = None
+        self.rook_a_moved = {
+            'white':False,
+            'black':False
+            }
+        self.rook_h_moved = {
+            'white':False,
+            'black':False
+            }
+        self.king_moved = {
+            'white':False,
+            'black':True
+            }
         
-rook_h_moved = {
-    'white':False,
-    'black':False
-    }
+
         
-king_moved = {
-    'white':False,
-    'black':True
-    }
+
 
 
 
