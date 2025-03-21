@@ -1,43 +1,54 @@
-#globals
+### globals ###
+#colors
 white = ['P','R','N','B','Q','K']
 black = ['p','r','n','b','q','k']
-
+#attack shapes
 star = [(1,1),(-1,-1),(1,-1),(-1,1),(1,0),(-1,0),(0,-1),(0,1)]
 diag = [(1,1),(-1,-1),(1,-1),(-1,1)]
 straight = [(1,0),(0,1),(-1,0),(0,-1)]
 L = [(-2,-1),(-2,1),(2,-1),(2,1),(-1,-2),(-1,2),(1,-2),(1,2)]
 wp = [(1,1),(-1,1)]
 bp = [(-1,-1),(1,-1)]
-
-#oop variables
-
-move_history = []
-
-en_passant = (2,6)
-
-rook_a_moved = {
-    'white':False,
-    'black':False
+#mapping to pieces
+attack_map = {
+    'Q': star, 'K': star, 'q': star, 'k': star,
+    'R': straight, 'r': straight,
+    'B': diag, 'b': diag,
+    'N': L, 'n': L,
+    'P': wp,
+    'p': bp
     }
-        
-rook_h_moved = {
-    'white':False,
-    'black':False
-    }
-        
-king_moved = {
-    'white':False,
-    'black':True
-    }
+standard2=[#1   2    3    4    5    6    7    8
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r'], #a
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #b
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #c
+        ['Q', 'P', '_', '_', '_', '_', 'p', 'q'], #d
+        ['K', 'P', '_', '_', '_', '_', 'p', 'k'], #e
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #f
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #g 
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r']  #h
+        ]
+
+#start board
+standard=[#1   2    3    4    5    6    7    8
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r'], #a
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #b
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #c
+        ['Q', '_', '_', '_', 'P', '_', 'p', 'q'], #d
+        ['K', 'P', '_', '_', '_', '_', 'p', 'k'], #e
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #f
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #g 
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r']  #h
+        ]
 
 
-
+#test boards
 board  =[#1    2    3    4    5    6    7    8
         ['_', '_', '_', '_', '_', '_', '_', 'r'], #a
         ['_', '_', '_', '_', '_', '_', '_', '_'], #b
         ['_', '_', '_', '_', '_', '_', '_', '_'], #c
-        ['_', '_', '_', '_', '_', '_', '_', 'k'], #d
-        ['_', '_', '_', '_', '_', 'P', '_', '_'], #e
+        ['_', '_', '_', '_', '_', '_', '_', '_'], #d
+        ['_', '_', '_', '_', '_', 'P', '_', 'k'], #e
         ['_', '_', '_', '_', '_', 'p', '_', '_'], #f
         ['_', '_', '_', '_', '_', 'P', '_', '_'], #g 
         ['_', '_', '_', '_', '_', '_', '_', 'r']  #h
@@ -47,44 +58,69 @@ board2 =[#1    2    3    4    5    6    7    8
         ['_', '_', '_', '_', '_', '_', '_', 'r'], #a
         ['_', '_', '_', '_', '_', '_', '_', '_'], #b
         ['_', '_', '_', '_', '_', '_', '_', '_'], #c
-        ['_', '_', '_', '_', '_', '_', '_', 'k'], #d
-        ['_', '_', '_', '_', '_', '_', 'P', '_'], #e
-        ['_', '_', '_', '_', '_', 'p', '_', '_'], #f
-        ['_', '_', '_', '_', '_', 'P', '_', '_'], #g 
-        ['_', '_', '_', '_', '_', '_', '_', 'r']  #h
+        ['_', '_', '_', '_', '_', '_', '_', '_'], #d
+        ['_', '_', '_', '_', '_', 'P', '_', '_'], #e
+        ['_', '_', '_', '_', '_', 'p', '_', 'r'], #f
+        ['_', '_', '_', '_', '_', 'P', '_', 'k'], #g 
+        ['_', '_', '_', '_', '_', '_', '_', '_']  #h
         ]
 
 
+###game class###
+class game:
+    def __init__ (self,board):
+        self.board = board
+        self.moves = []
+        self.flags = {
+            'en_passant': None,
+            'rook_a_moved': {'white': False, 'black': False},
+            'rook_h_moved': {'white': False, 'black': False},
+            'king_moved': {'white': False, 'black': False}
+        }
+        self.turn = 'white'
+    
+    def make_move(self,board,new_board):
+        self.flags['en_passant'] = None
+        
+        self.board = new_board
+        
+        self.moves.append(move_notation(board,new_board))     
+        
+        for i in [ (0,'R','K','white'), (7,'r','k','black') ]:
+            if new_board[0][i[0]] != i[1]:
+                self.flags['rook_a_moved'][i[3]] = True
+                return
+            if new_board[7][i[0]] != i[1]:
+                self.flags['rook_h_moved'][i[3]] = True
+                return
+            if new_board[4][i[0]] != i[2]:
+                self.flags['king_moved'][i[3]] = True
+                return
+                
+        new, missing = difference(board,new_board)
+        new = new[0]
+        missing = missing[0]
+        if new_board[new[0]][new[1]] in ['P','p']:
+            distance = missing[1] - new[1]
+            if missing[0] == new[0] and distance in [2,-2]:
+                self.flags['en_passant'] = (new[0],new[1]+(distance/2))
 
-def piece_targets(board,file,rank):
+        
+        
+
+###standalone functions###
+#return all squares being targeted by given square
+def piece_targets(board,file,rank): 
     targets = []
     notation = board[file][rank]
     
-    #movement style
+    #one jump vs sliding pieces
     if notation in ['P','N','K','p','n','k']:
         distance = 1
-    else:
-        distance = 8
-        
+    else: #['B','b','q','Q','r','R']
+        distance = 8      
     #attack pattern
-    if notation in ['Q','K','q','k']:
-        attack_pattern = star
-    
-    elif notation in ['R','r']:
-        attack_pattern = straight
-        
-    elif notation in ['B','b']:
-        attack_pattern = diag
-    
-    elif notation in ['N','n']:
-        attack_pattern = L
-        
-    elif notation in ['P']:
-        attack_pattern = wp
-    
-    elif notation in ['p']:
-        attack_pattern = bp
-    
+    attack_pattern = attack_map.get(notation)
     for delta_file, delta_rank in attack_pattern:
         for dist in range(distance):
             target_file = file + ((dist+1)*delta_file)
@@ -144,7 +180,7 @@ def promotion(board,file,rank):
         boards.append( new_board)
     return boards
 
-def pawn_logic(board,file,rank): #returns all legal moves for a pawn piece
+def pawn_logic(board,file,rank,flags): #returns all legal moves for a pawn piece
     boards = []
     notation = board[file][rank]
     direction = 1 if notation == 'P' else -1
@@ -180,7 +216,7 @@ def pawn_logic(board,file,rank): #returns all legal moves for a pawn piece
             continue
         new_rank = rank + direction
         target = board[new_file][new_rank]
-        if (new_file,new_rank) == en_passant:
+        if (new_file,new_rank) == flags['en_passant']:
             new_board = [file[:] for file in board]
             new_board[new_file][rank] = '_'
             capture = valid_check(new_board,file,rank,new_file,new_rank)
@@ -188,14 +224,14 @@ def pawn_logic(board,file,rank): #returns all legal moves for a pawn piece
                 boards.append(capture)            
     return boards
 
-def king_logic(board,file,rank): #returns all legal moves for a king piece
+def king_logic(board,file,rank,flags): #returns all legal moves for a king piece
     boards = []
     notation = board[file][rank]
     color = 'white' if notation in white else 'black'
-    if not king_moved[color] and not in_check(board,color): #kings not in check or moved yet
+    if not flags['king_moved'][color] and not in_check(board,color): #kings not in check or moved yet
         #long castle
-        if not rook_a_moved[color]: # rook a not moved
-            if board[1][rank] == board[2][rank] == board[3][rank] == '_': #path clear
+        if not flags['rook_a_moved'][color]: # rook a not moved
+            if board[1][rank] == board[2][rank] == board[3][rank] == '_' and board[0][rank] in ['r','R']: #path clear
                 for i in range (1,3):
                     new_board = [file[:] for file in board]
                     new_board = valid_check(new_board,file,rank,file-i,rank) #path safe
@@ -206,8 +242,8 @@ def king_logic(board,file,rank): #returns all legal moves for a king piece
                         new_board[0][rank] = '_'
                         boards.append(new_board)
         #short castle
-        if not rook_h_moved[color]: #rook h not moved       
-            if board[5][rank] == board[6][rank] == '_': #path clear
+        if not flags['rook_h_moved'][color]: #rook h not moved       
+            if board[5][rank] == board[6][rank] == '_' and board[7][rank] in ['r','R']:#path clear
                 for i in range (1,3):
                     new_board = [file[:] for file in board]
                     new_board = valid_check(new_board,file,rank,file+i,rank)#path safe
@@ -229,18 +265,18 @@ def king_logic(board,file,rank): #returns all legal moves for a king piece
         
     return boards
 
-def valid_moves(board,color):
+def legal_moves(board,color,flags):
     boards = []
     pieces = white if color == 'white' else black
     for file in range(len(board)):
         for rank in range(len(board[file])):
             occupant = board[file][rank]
             if occupant in pieces and occupant in ['P','p']:
-                pawn_moves = (pawn_logic(board,file,rank))
+                pawn_moves = (pawn_logic(board,file,rank,flags))
                 if pawn_moves:
                     boards += pawn_moves
             elif occupant in pieces and occupant in ['K','k']:
-                boards += king_logic(board,file,rank)
+                boards += king_logic(board,file,rank,flags)
                 
             elif occupant in pieces and occupant not in ['R','r']:
                 targets = piece_targets(board,file,rank)
@@ -255,19 +291,9 @@ def move_notation(board,new_board):
     extra = '' #check/ checkmate
     files = ['a','b','c','d','e','f','g','h']
     ranks = ['1','2','3','4','5','6','7','8']
-    missing = []
-    new = []
-    for file in range(len(board)):
-        for rank in range(len(board[file])):
-            square_b4 = board[file][rank]
-            square_now = new_board[file][rank]
-            if square_now != square_b4: #find change between boards
-                if new_board[file][rank] == '_': #square empty that had a piece before
-                    missing.append((file,rank))
-                else:
-                    new.append((file,rank)) #piece in location it wasn't before
-                    
     
+    new, missing = difference(board,new_board)
+                    
     #is new board a check or checkmate
     moved_color = 'white' if new_board[new[0][0]][new[0][1]] in white else 'black'
     opp_color = 'black' if moved_color == 'white' else 'white'
@@ -275,7 +301,7 @@ def move_notation(board,new_board):
     #other player in check?
     if in_check(new_board,opp_color):
         print ('check delivered')
-        if valid_moves(new_board,opp_color): #check
+        if legal_moves(new_board,opp_color): #check
             extra = '+'
         else:#checkmate
             extra = '#'
@@ -351,16 +377,24 @@ def move_notation(board,new_board):
     else:
         return attacker + files[missing[0][0]] + ranks[missing[0][1]] + new_file + new_rank + extra
         
-
+def difference(old_board,new_board):
+    new = []
+    missing = []
+    for file in range(len(board)):
+        for rank in range(len(board[file])):
+            old_square_state = board[file][rank]
+            new_square_state = new_board[file][rank]
+            if new_square_state != old_square_state: #find change between boards
+                if new_board[file][rank] == '_': #square empty that had a piece before
+                    missing.append((file,rank))
+                else:
+                    new.append((file,rank)) #piece in location it wasn't before
+    return new,missing
                     
-#clean up notation once logic is good
-x = move_notation(board,board2)
-print (x)
-
-
 
         
+new1 = game(standard)
 
-
-
+#x = legal_moves(new1.board,new1.turn,new1.flags)
+new1.make_move(board,board2)
 
