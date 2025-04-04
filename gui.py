@@ -1,6 +1,6 @@
 import pygame
 import os
-import Chess
+import chess_logic
 # --- Globals ---
 #screen location
 os.environ['SDL_VIDEO_WINDOW_POS'] = "2000,100"
@@ -11,7 +11,7 @@ width, height = 800, 600
 screen = pygame.display.set_mode((width, height))
 
 #window title and icon
-pygame.display.set_caption("Chess")
+pygame.display.set_caption("chess_logic")
 icon = pygame.image.load("icon.png")  # Replace with your image file path
 pygame.display.set_icon(icon)
 
@@ -39,7 +39,7 @@ piece_images["q"] = pygame.image.load("black_queen.png")
 piece_images["k"] = pygame.image.load("black_king.png")
 
 #--- oopable variables ---
-board1 = Chess.game(Chess.standard)
+board1 = chess_logic.game(chess_logic.standard)
 held_piece = None
 board_orientation = 'Left'
 origin = [0,0]
@@ -115,7 +115,7 @@ while running:
             menu_y_origin = height/2 - height/8/2
             if menu_x_origin < pos[0] < menu_x_origin + width/2 and menu_y_origin < pos[1] <menu_y_origin + height/8:
                 x = int((pos[0]-menu_x_origin) / (width/8))
-                legal_moves = Chess.legal_moves(board1.board,board1.turn, board1.flags)
+                legal_moves = chess_logic.legal_moves(board1.board,board1.turn, board1.flags)
                 promotion_list = ['Q','R','B','N'] if promotion[1] == 7 else ['q','r','b','n']
                 for board in legal_moves:
                     if board[promotion[0]][promotion[1]] == promotion_list[x]:
@@ -138,7 +138,7 @@ while running:
                     held_piece = None
             
             if held_piece:
-                legal_moves = Chess.legal_moves(board1.board,board1.turn, board1.flags)
+                legal_moves = chess_logic.legal_moves(board1.board,board1.turn, board1.flags)
                 notation = board1.board[held_piece[0]][held_piece[1]]
                 for board in legal_moves:
                     new_square = board[file][rank]
