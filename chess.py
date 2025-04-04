@@ -18,6 +18,28 @@ attack_map = {
     'P': wp,
     'p': bp
     }
+standard2=[#1   2    3    4    5    6    7    8
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r'], #a
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #b
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #c
+        ['Q', 'P', '_', '_', '_', '_', 'p', 'q'], #d
+        ['K', 'P', '_', '_', '_', '_', 'p', 'k'], #e
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #f
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #g 
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r']  #h
+        ]
+
+#start board
+standard=[#1   2    3    4    5    6    7    8
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r'], #a
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #b
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #c
+        ['Q', '_', '_', '_', 'P', '_', 'p', 'q'], #d
+        ['K', 'P', '_', '_', '_', '_', 'p', 'k'], #e
+        ['B', 'P', '_', '_', '_', '_', 'p', 'b'], #f
+        ['N', 'P', '_', '_', '_', '_', 'p', 'n'], #g 
+        ['R', 'P', '_', '_', '_', '_', 'p', 'r']  #h
+        ]
 
 
 #start board
@@ -33,8 +55,47 @@ standard=[#1   2    3    4    5    6    7    8
         ]
 
 
+###game class###
+class game:
+    def __init__ (self,board):
+        self.board = board
+        self.moves = []
+        self.flags = {
+            'en_passant': None,
+            'rook_a_moved': {'white': False, 'black': False},
+            'rook_h_moved': {'white': False, 'black': False},
+            'king_moved': {'white': False, 'black': False}
+        }
+        self.turn = 'white'
+    
+    def make_move(self,board,new_board):
+        self.flags['en_passant'] = None
+        
+        self.board = new_board
+        
+        self.moves.append(move_notation(board,new_board))     
+        
+        for i in [ (0,'R','K','white'), (7,'r','k','black') ]:
+            if new_board[0][i[0]] != i[1]:
+                self.flags['rook_a_moved'][i[3]] = True
+                return
+            if new_board[7][i[0]] != i[1]:
+                self.flags['rook_h_moved'][i[3]] = True
+                return
+            if new_board[4][i[0]] != i[2]:
+                self.flags['king_moved'][i[3]] = True
+                return
+                
+        new, missing = difference(board,new_board)
+        new = new[0]
+        missing = missing[0]
+        if new_board[new[0]][new[1]] in ['P','p']:
+            distance = missing[1] - new[1]
+            if missing[0] == new[0] and distance in [2,-2]:
+                self.flags['en_passant'] = (new[0],new[1]+(distance/2))
 
-
+        
+       
 ###game class###
 class game:
     def __init__ (self,board):
@@ -76,7 +137,6 @@ class game:
         self.turn = 'black' if self.turn == 'white' else 'white'
         
         
-
 ###standalone functions###
 #return all squares being targeted by given square
 def piece_targets(board,file,rank): 
@@ -271,6 +331,7 @@ def move_notation(board,new_board,flags):
     if in_check(new_board,opp_color):
         print ('check delivered')
         if legal_moves(new_board,opp_color,flags): #check
+
             extra = '+'
         else:#checkmate
             extra = '#'
@@ -360,3 +421,4 @@ def difference(old_board,new_board):
                     new.append((file,rank)) #piece in location it wasn't before
     return new,missing
                     
+
