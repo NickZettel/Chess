@@ -374,7 +374,7 @@ def move_notation(board,new_board,flags):
         if new[0] in targets:
             attackers.append(i)
     if not attackers: #
-        print ('no differentiation neccessary')
+        #print ('no differentiation neccessary for notation')
         if old_occupant != '_':
             return notation + 'x' + new_file + new_rank + extra
         else:
@@ -385,23 +385,23 @@ def move_notation(board,new_board,flags):
             print ('file is not enough to differentiate')
             break
     else:
-        print ('differentiated by file')
+        #print ('differentiated by file')
         if old_occupant != '_':
             return attacker + files[missing[0][0]] + "x" + new_file + new_rank +extra#differentiated by file
         else:
             return attacker + files[missing[0][0]] + new_file + new_rank + extra#differentiated by file
     for i in same_pieces:
         if i[1] == missing[0][1]: #rank is not enough to differentiate
-            print ('rank is not enough to differentiate')
+            #print ('rank is not enough to differentiate')
             break
     else:
-        print ('#differentiated by rank')
+        #print ('#differentiated by rank')
         if old_occupant != '_':
             return attacker + ranks[missing[0][1]] + "x" + new_file + new_rank + extra #differentiated by file
         else:
             return attacker + ranks[missing[0][1]] + new_file + new_rank + extra#differentiated by file
     
-    print ('double disambiguation')
+    #print ('double disambiguation')
     if old_occupant != '_':
         return attacker + files[missing[0][0]] + ranks[missing[0][1]] + "x" + new_file + new_rank + extra
     else:
