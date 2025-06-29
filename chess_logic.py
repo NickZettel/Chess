@@ -360,7 +360,7 @@ def move_notation(board,new_board,flags):
     attacker = new_board[new[0][0]][new[0][1]]
     same_pieces = []
     new_file = files[new[0][0]]
-    new_rank = ranks[new[0][1]] #no need to differentiate FIX IT ########################
+    new_rank = ranks[new[0][1]] 
     #check if any identical pieces
     #print (notation)
     for file in range(len(board)):
