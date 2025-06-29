@@ -17,7 +17,7 @@ screen = pygame.display.set_mode((width, height))
 
 #window title and icon
 pygame.display.set_caption("chess_logic")
-icon = pygame.image.load("icon.png")  # Replace with your image file path
+icon = pygame.image.load("icon.png")  
 pygame.display.set_icon(icon)
 
 #menu item coordinates
