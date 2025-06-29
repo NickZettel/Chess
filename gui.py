@@ -4,7 +4,7 @@ import os
 import chess_logic
 # --- Globals ---
 #screen location
-os.environ['SDL_VIDEO_WINDOW_POS'] = "2000,100"
+os.environ['SDL_VIDEO_WINDOW_POS'] = "200,100"
 pygame.init()
 
 #text options and surfaces
