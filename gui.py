@@ -60,7 +60,7 @@ held_piece = None
 board_orientation = 'Left'
 origin = [0,0] #where board appears on the screen
 promotion = False
-orientation = 0 #1 means white on bottom, 0 means black on bottom
+orientation = 1 #1 means white on bottom, 0 means black on bottom
 board_width = width-200
 board_height = height
 
